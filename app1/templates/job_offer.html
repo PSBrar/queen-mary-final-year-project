@@ -1,0 +1,47 @@
+{% extends './base.html' %}
+{% load static %}
+{% block content %}
+
+{% load crispy_forms_tags %}
+
+<link rel="stylesheet" href="{% static 'app1/base.css' %}">
+
+<div id ="container">
+    <h2>job</h2>
+
+    {% if createdOfferPost %}
+
+    <p>You have already created an offer for this post. Please return to your dashboard.</p>
+
+    {% else %}
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+        Make Offer
+      </button>
+      <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="createModalLabel">Offer Creation</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary">Send Offer</button>
+                  <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+                <!--<button type="submit" class="btn btn-primary" @click = "editPerson()">Update</button>-->
+            </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% endif %}
+    
+</div>
+
+{% endblock %}

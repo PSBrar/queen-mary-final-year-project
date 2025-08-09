@@ -1,0 +1,53 @@
+{% extends './base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'app1/base.css' %}">
+
+<script src = "https://maps.googleapis.com/maps/api/js?key=<INSERT_API_KEY_HERE>&libraries=places"></script>
+
+<h1>My Settings</h1>
+{% if request.user.userprofile.isCustomer %}
+<p>Here you can customise the parameters used to recommend you Builders.</p>
+<p>Location is your preferred location. Set how far out you want your builders to be with Mileage Range</p>
+{% else %}
+<p>Here you can customise the parameters used to recommend you posts.</p>
+<p>Location is your preferred location. Set how far out you want your potential jobs to be to be with Mileage Range</p>
+<p>Category is your own speciality. This will be used to match you with posts that require your skills.</p>
+{% endif %}
+    <div>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-row">
+                {{ form.jobCategory|as_crispy_field }}
+            </div>
+            <div class="form-row">
+                {{ form.mileageRange|as_crispy_field }}
+            </div>
+            <div class="form-row">
+                {{ form.location|as_crispy_field }}
+            </div>
+            {% if request.user.userprofile.isCustomer %}
+            <div class="form-row">
+                {{ form.preferRating|as_crispy_field }}
+            </div>
+            {% endif %}
+            <br/>
+            <button class="btn btn-primary" type="submit">Submit</button>
+        </form>
+    </div>
+
+<script>
+  function initialize() {
+    var input = document.getElementById('id_location');
+    new google.maps.places.Autocomplete(input);
+    }
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+</script>
+{% endblock %}

@@ -1,0 +1,293 @@
+{% extends './base.html' %}
+{% block content %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'app1/base.css' %}"/>
+
+{% if user.is_authenticated %}
+
+{% if userprofile.isCustomer %}
+
+<script src = "https://maps.googleapis.com/maps/api/js?key=<INSERT_API_KEY_HERE>&libraries=places"></script>
+
+<!-- Customer -->
+
+<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
+Post a Job
+</button>
+<br></br>
+
+<h3>My Current Jobs</h3>
+<div class = "owl-carousel owl-theme" id = "owl-one">
+{% for job in request.user.customer_jobs.all %}
+<div class="card shadow p-3 mb-5 bg-white rounded" style="width: 18rem;">
+  <div class="card-body">
+    <h5 class="card-title">{{job.post.title}}</h5>
+    <p class="card-text">{{job.post.description}}</p>
+    <p class="card-text">£{{job.post.budget}}</p>
+    {% if job.isOngoing == True %}
+    <a href="{% url 'conversation' request.user.id job.builder.id %}" class="btn btn-primary">Message</a>
+    <br></br>
+    <form method="POST" >
+        {% csrf_token %}
+    <button type="submit" class="btn btn-primary" onclick = "completeJob('{{job.id}}')">Mark as completed</button>
+    </form>
+    {% else %}
+    <a href="{% url 'review' job.id %}" class="btn btn-primary">Review</a>
+    {% endif %}
+  </div>
+</div>
+
+{% empty %}
+<p>No jobs</p>
+{% endfor %}
+</div>
+
+<h3>My Posts</h3>
+<div class = " owl-carousel owl-theme" id = "owl-two">
+{% for post in request.user.posts.all %}
+{% if post.accepted == False %}
+<div class="card shadow p-3 mb-5 bg-white rounded" style="width: 18rem;">
+  <div class="card-body">
+    <h5 class="card-title">{{post.title}}</h5>
+    <p class="card-text">{{post.description}}</p>
+    <p class="card-text">£{{post.budget}}</p>
+    <a href="{% url 'joboffers' post.id%}" class="btn btn-primary">View Offers</a>
+  </div>
+</div>
+
+{% endif %}
+{% empty %}
+<p>No posts</p>
+{% endfor %}
+</div>
+
+  <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createModalLabel">Job Creation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-row">
+              {{ form.location|as_crispy_field }}
+            </div>
+            <div class="form-row">
+              {{ form.title|as_crispy_field }}
+            </div>
+            <div class="form-row">
+              {{ form.description|as_crispy_field }}
+            </div>
+            <div class="form-row">
+              {{ form.jobCategory|as_crispy_field }}
+            </div>
+            <div class="form-row">
+              {{ form.budget|as_crispy_field }}
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Create Job Post</button>
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            </div>
+            <!--<button type="submit" class="btn btn-primary" @click = "editPerson()">Update</button>-->
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% else %}
+
+<!-- Builder -->
+
+<h3>My Current Jobs</h3>
+<div class = "owl-carousel owl-theme" id = "owl-three">
+
+{% for job in request.user.builder_jobs.all %}
+
+<div class = "container" style="margin-top: 10px;">
+  <div class="card shadow p-3 mb-5 bg-white rounded" style="width: 18rem;">
+    <div class="card-body">
+      <h5 class="card-title">{{job.post.title}}</h5>
+      <p class="card-text">{{job.post.description}}</p>
+      <p class="card-text">£{{job.post.budget}}</p>
+      <p class="card-text">For {{job.post.userID}}</p>
+      <a href="{% url 'conversation' job.customer.id request.user.id %}" class="btn btn-primary">Message</a>
+      </div>
+    </div>
+  </div>
+
+{% empty %}
+<p>no jobs</p>
+{% endfor %}
+</div>
+
+<br/>
+
+<h3>My Offers</h3>
+<div class = "owl-carousel owl-theme" id = "owl-four">
+{% for offer in request.user.offers.all %}
+
+  <div class = "container" style="margin-top: 10px;">
+    <div class="card shadow p-3 mb-5 bg-white rounded" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title">{{offer.post.title}}</h5>
+        <p class="card-text">You said: <br>{{offer.comments}}</p>
+        <a href="{% url 'conversation' offer.post.userID.id request.user.id %}" class="btn btn-primary">Message</a>
+        <br></br>
+      </div>
+    {% if offer.isDeclined == True %}
+    <div class="card-footer text-white bg-danger">
+      <strong>Your offer has been declined.</strong> You can message the user to find out why.
+    </div>
+    {% elif offer.isAccepted == True %}
+      <div class="card-footer text-white bg-success">
+        <strong>Your offer has been accepted.</strong> Check your current jobs to start working.
+      </div>
+    {% elif offer.isAccepted == False and offer.isDeclined == False %}
+    <div class="card-footer text-white bg-primary">
+      <strong>Your offer is pending.</strong> You can message the user if they have any queries.
+    </div>
+    {% endif %}
+
+    </div>
+  </div>
+
+
+{% empty %}
+<p>no offers</p>
+{% endfor %}
+</div>
+
+<br>
+
+{% endif %}
+{% endif %}
+
+<script>
+  async function completeJob(jobID){
+    apiCall = `/api/complete_job_api/${jobID}/`
+    console.log(apiCall)
+    let response = await fetch(apiCall, {
+        method: "PUT",
+        headers: {
+        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken").value,
+        }
+    });
+
+    if (response.ok){
+      console.log("js ok response")
+
+    }
+  }
+</script>
+
+
+<script>
+
+$(document).ready(function(){
+  $("#owl-one").owlCarousel();
+});
+
+$('#owl-one').owlCarousel({
+    loop:false,
+    margin:10,
+    nav:true,
+    responsive:{
+        0:{
+            items:1
+        },
+        600:{
+            items:3
+        },
+        1000:{
+            items:4
+        }
+    }
+})
+
+$(document).ready(function(){
+  $("#owl-three").owlCarousel();
+});
+
+$('#owl-three').owlCarousel({
+    loop:false,
+    margin:10,
+    nav:true,
+    responsive:{
+        0:{
+            items:1
+        },
+        600:{
+            items:3
+        },
+        1000:{
+            items:4
+        }
+    }
+})
+
+$(document).ready(function(){
+  $("#owl-two").owlCarousel();
+});
+
+$('#owl-two').owlCarousel({
+    loop:false,
+    margin:10,
+    nav:true,
+    responsive:{
+        0:{
+            items:1
+        },
+        600:{
+            items:3
+        },
+        1000:{
+            items:4
+        }
+    }
+})
+
+$(document).ready(function(){
+  $("#owl-four").owlCarousel();
+});
+
+$('#owl-four').owlCarousel({
+    loop:false,
+    margin:10,
+    nav:true,
+    responsive:{
+        0:{
+            items:1
+        },
+        600:{
+            items:3
+        },
+        1000:{
+            items:4
+        }
+    }
+})
+</script>
+
+<script>
+  function initialize() {
+    var input = document.getElementById('id_location');
+    new google.maps.places.Autocomplete(input);
+    }
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+</script>
+
+<style>
+  .pac-container {
+    z-index: 100000 !important;
+}
+</style>
+{% endblock %}

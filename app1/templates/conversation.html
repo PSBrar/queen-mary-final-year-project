@@ -1,0 +1,41 @@
+{% extends './base.html' %}
+{% load static %}
+{% block content %}
+
+{% load crispy_forms_tags %}
+<link rel="stylesheet" href="{% static 'app1/base.css' %}">
+
+<div id ="container">
+
+    <h1>Conversation</h1>
+    <p>Here you can communicate</p>
+    <p>For any customers that have been recommeneded a builder, please acknowledge the following:</p>
+    <p>Builders can view your profile and your current job posts during your conversation. </p>
+
+    {% for message in conversation.msgs.all %}
+    <div class="card">
+        <div class = "card-body">
+        <b>{{message.author}} - {{message.created|timesince}} ago</b>
+        <br>
+        {{message.text}}
+    </div>
+    </div>
+    {% endfor %}
+
+    <form method="POST" action=".">
+        {% csrf_token %}
+
+        <div class="card">
+            <div class="card-body">
+                <textarea style = "width: 100%; -webkit-box-sizing: border-box; box-sizing: border-box; border:none;" name = "message_text" placeholder="Enter your message ..."></textarea>
+            </div>
+        </div>
+        <br>
+        <div>
+            <button type="submit" class ="btn btn-success">Send Message</button>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

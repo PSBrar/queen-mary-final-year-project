@@ -1,0 +1,17 @@
+{% extends './base.html' %}
+{% load static %}
+{% block content %}
+
+{% load crispy_forms_tags %}
+
+<link rel="stylesheet" href="{% static 'app1/base.css' %}">
+
+<div id ="container">
+    <p>{{post.userID}}</p>
+    <p>{{post.budget}}</p>
+    <p>{{post.title}}</p>
+    <p>{{post.description}}</p>
+    
+</div>
+
+{% endblock %}

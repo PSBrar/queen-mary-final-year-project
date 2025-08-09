@@ -1,0 +1,162 @@
+{% extends './base.html' %}
+{% block content %}
+
+{% load crispy_forms_tags %}
+
+{% if user.is_authenticated %}
+
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'app1/base.css' %}">
+
+{% if request.user.userprofile.isCustomer %}
+<!-- Customer -->
+<h1>Recommended Builders</h1>
+<p>Based on your parameters we think these will be the best for you</p>
+
+<p>These recommendations are based off of multiple parameters</p>
+<p>You can customise these parameters in your settings page</p>
+
+
+<div class = "owl-carousel owl-theme" id="owl-one">
+  {% for builder in recommendedBuilders%}
+  <div class = "container" style="margin-top: 10px;">
+    <div class="card shadow p-3 mb-5 bg-white rounded" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title"><b>{{builder.user.username}}</b></h5>
+        <p class="card-text">Specialises in {{builder.jobCategory}}</p>
+        <p class="card-text">Located at {{builder.location}}</p>
+        <p class="card-text">Their average rating is {{builder.avgRating}}</p>
+        <p class="card-text">Located {{builder.actualMileageVal}} miles away</p>
+        <a href="{% url 'conversation' request.user.id builder.user.id%}" class="btn btn-primary">Message</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p><strong>No builders matching your parameters.</strong></p>
+  {% endfor %}
+</div>
+
+
+{% else %}
+<!-- Builder -->
+
+<h1>Latest Job Posts</h1>
+
+<div class = "owl-carousel owl-theme" id="owl-two">
+  {% for post in posts%}
+  <div class = "container" style="margin-top: 10px;">
+    <div class="card shadow p-3 mb-5 bg-white rounded" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title"><b>{{post.title}}</b></h5>
+        <p class="card-text">Job Category is {{post.jobCategory}}</p>
+        <p class="card-text">{{post.description}}</p>
+        <p class="card-text">Located at {{post.location}}</p>
+        <p class="card-text">Located {{post.actualMileageVal}} miles away</p>
+        <p class="card-text">Budget is £{{post.budget}}</p>
+        <a href="{% url 'joboffer' post.id %}" class = "btn btn-primary">Make Offer</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p><strong>no job posts</strong></p>
+  {% endfor %}
+</div>
+<br>
+<h1>Recommended Job Posts</h1>
+<p>Based on your parameters we think these will be the best for you</p>
+
+<p>These recommendations are based off of multiple parameters</p>
+<p>You can customise these parameters in your settings page</p>
+
+<div class = "owl-carousel owl-theme" id="owl-three">
+  {% for post in recommendedPosts%}
+  <div class = "container" style="margin-top: 10px;">
+    <div class="card shadow p-3 mb-5 bg-white rounded" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title"><b>{{post.title}}</b></h5>
+        <p class="card-text">Job Category is {{post.jobCategory}}</p>
+        <p class="card-text">{{post.description}}</p>
+        <p class="card-text">Located at {{post.location}}</p>
+        <p class="card-text">Located {{post.actualMileageVal}} miles away</p>
+        <p class="card-text">Budget is £{{post.budget}}</p>
+        <a href="{% url 'joboffer' post.id %}" class = "btn btn-primary">Make Offer</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p><strong>No posts matching your parameters.</strong></p>
+  {% endfor %}
+</div>
+
+{% endif %}
+
+{%else%}
+<p> You are not logged in yet. Please login using the navigation bar above.</p>
+{%endif%}
+
+<script>
+  $(document).ready(function(){
+  $("#owl-one").owlCarousel();
+});
+
+$('#owl-one').owlCarousel({
+    loop:false,
+    margin:10,
+    nav:true,
+    responsive:{
+        0:{
+            items:1
+        },
+        600:{
+            items:3
+        },
+        1000:{
+            items:4
+        }
+    }
+})
+
+$(document).ready(function(){
+  $("#owl-two").owlCarousel();
+});
+
+$('#owl-two').owlCarousel({
+    loop:false,
+    margin:10,
+    nav:true,
+    responsive:{
+        0:{
+            items:1
+        },
+        600:{
+            items:3
+        },
+        1000:{
+            items:4
+        }
+    }
+})
+
+$(document).ready(function(){
+  $("#owl-three").owlCarousel();
+});
+
+$('#owl-three').owlCarousel({
+    loop:false,
+    margin:10,
+    nav:true,
+    responsive:{
+        0:{
+            items:1
+        },
+        600:{
+            items:3
+        },
+        1000:{
+            items:4
+        }
+    }
+})
+</script>
+{% endblock %}

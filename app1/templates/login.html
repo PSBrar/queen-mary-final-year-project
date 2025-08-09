@@ -1,0 +1,39 @@
+{% extends './base.html' %}
+
+
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'app1/base.css' %}">
+
+<link rel="stylesheet" href="{% static 'app1/userForm.css' %}"/>
+
+    
+    <div class="form-container">
+        <div class="form-content-left">
+          <img
+            src="https://cdn.dribbble.com/users/458522/screenshots/14744495/media/57c949073fee23cc767d39f28f8e4880.png?compress=1&resize=1200x900&vertical=top"
+            class="form-img"
+            alt="Picture of House"
+          />
+        </div>
+        <div class="form-content-right-group">
+          <br/>
+          <h1>Login</h1>
+        <div class="form-content-right">
+            
+        <form method="POST" class="form">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br/>
+            <button class="btn btn-primary" type="submit">Submit</button>
+        </form>
+        </div>
+        </div>
+    </div>
+
+{% endblock %}

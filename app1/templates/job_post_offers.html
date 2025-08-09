@@ -1,0 +1,128 @@
+{% extends './base.html' %}
+{% load static %}
+{% block content %}
+
+{% load crispy_forms_tags %}
+
+<link rel="stylesheet" href="{% static 'app1/base.css' %}">
+
+<div id = "App">
+{{ idData|json_script:"idData" }}
+<script>
+  const postID = JSON.parse(document.getElementById('idData').textContent)
+</script>
+
+
+    <h1>Offers</h1>
+    <div v-if ="this.allOffersDecline">
+      <p>No offers available</p>
+    </div>
+    <div v-else>
+    <div v-for="(offer, index) in offersObject">
+    <div class="card shadow p-3 mb-5 bg-white rounded" style="width: 18rem;" v-if="offer.isDeclined == false">
+      <div class="card-body">
+        <h5 class="card-title">From [[offer.user]]</h5>
+        <p class="card-text">£[[offer.price]]</p>
+        <p class="card-text">[[offer.comments]]</p>
+        <form action="{% url 'dash_redirect_view' %}" method="post" onsubmit="confirm('Are you sure you want to submit?');">
+          {% csrf_token %}
+          <button class="btn btn-success" @click = "acceptOffer(offer)">Accept</button>
+        </form>
+        <a :href = "[[offer.msgURL]]" class="btn btn-primary">Message</a>
+        <button class="btn btn-danger" @click = "declineOffer(offer)">Decline</button>
+      </div>
+      </div>
+    </div>
+    </div>
+
+</div>
+
+<script>
+  let myApp = Vue.createApp({
+      delimiters: ["[[", "]]"],
+      data() {
+          return {
+              offersObject: [],
+              allOffersDecline: false,
+          }
+      },
+      methods:{
+        async getOffers(){
+          apiCall = `/api/get_offers_api/${postID.post_id}`
+          let response = await fetch(apiCall, {method:"GET"});
+        
+            if (response.ok) {
+                let data = await response.json();
+                this.offersObject = data.offers;
+                var counter = 0
+                var counter = 0
+                for (let i = 0; i < this.offersObject.length; i++) {
+                  if (this.offersObject[i].isDeclined == true){
+                    counter++
+                  }
+                }
+                if (counter == this.offersObject.length){
+                  this.allOffersDecline = true
+                }
+            }
+            else{
+              alert("getOffers() error")
+            }
+          
+        },
+
+        async declineOffer(offer){
+          let response2 = await fetch(offer.declineAPI, {
+              method: "PUT",
+              headers: {
+              "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken").value,
+              }
+          });
+
+          if(response2.ok){
+            this.getOffers()
+            
+          }
+          else{
+              alert("declineOffer() error")
+            }
+
+        },
+
+        async acceptOffer(offer){
+          let response2 = await fetch(offer.acceptAPI, { //reuse the same api. alter it to include a str variable that will either say "accept" or "decline"
+              method: "PUT", //add all the other stuff needed for when the user accepts and offer
+              headers: {
+              "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken").value,
+              }
+          });
+
+          if(response2.ok){
+            
+            
+          }
+          else{
+              alert("acceptOffer() error")
+            }
+
+        },
+        
+      },
+      async created(){
+        //console.log(mydata)
+
+       this.getOffers()
+
+      },
+      async mounted(){
+  
+        
+          
+      },
+    })
+  myApp.mount("#App")
+</script>
+
+
+
+{% endblock %}
