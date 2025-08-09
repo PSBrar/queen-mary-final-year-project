@@ -4,7 +4,7 @@
 
 This is my Final Year Project for a Airbnb-style web app for connecting builders and customers. Made using Django &amp; Vue
 
-PRABHJOT SINGH BRAR (190226392)
+PRABHJOT SINGH BRAR
 
 # Build & Run
 
@@ -36,4 +36,4 @@ This web app could be deployed using heroku (www.heroku.com)
 
 The pre requirements needed before deploying the web app are listed at https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
-PRABHJOT SINGH BRAR (190226392)
+PRABHJOT SINGH BRAR
